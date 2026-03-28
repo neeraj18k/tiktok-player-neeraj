@@ -30,10 +30,10 @@ export const videos = [
   },
   {
   id: 4,
-  url: 'https://res.cloudinary.com/dzwfultjf/video/upload/v1774639330/video5_qykzin.mp4',
+  url: 'https://res.cloudinary.com/dzwfultjf/video/upload/v1774639259/samples/sea-turtle.mp4',
   user: { name: 'wanderlust_forever', avatar: 'https://i.pravatar.cc/150?img=4', verified: true },
-  description: `Pressure makes diamonds, and he proves it every time. 💎
-That’s why they call him King.`,
+  description: `“Slow and steady, even in the waves. 🌊🐢
+Peace flows where patience lives.”`,
   likes: 89300, comments: 1560, shares: 4200, bookmarks: 6700,
   music: 'Escape Route — wanderlust_forever',
   following: false, liked: false, bookmarked: false,

@@ -11,12 +11,31 @@ export default function VideoFeed({ darkMode }) {
   const [isMuted, setIsMuted] = useState(true)
   const isJumping = useRef(false)
 
+  // ✅ Start at real first video
   useEffect(() => {
     const feed = feedRef.current
     if (!feed) return
-    feed.scrollTo({ top: feed.clientHeight * 1, behavior: 'instant' })
+    feed.scrollTo({ top: feed.clientHeight, behavior: 'instant' })
   }, [])
 
+  // ✅ Preload next and previous video
+  useEffect(() => {
+    extendedVideos.forEach((video, idx) => {
+      // Only preload adjacent videos
+      if (Math.abs(idx - activeIndex) <= 1) {
+        const link = document.createElement('link')
+        link.rel = 'preload'
+        link.as = 'video'
+        link.href = video.url
+        // Only add if not already added
+        if (!document.querySelector(`link[href="${video.url}"]`)) {
+          document.head.appendChild(link)
+        }
+      }
+    })
+  }, [activeIndex])
+
+  // Scroll + infinite loop
   useEffect(() => {
     const feed = feedRef.current
     if (!feed) return
@@ -48,8 +67,9 @@ export default function VideoFeed({ darkMode }) {
 
     feed.addEventListener('scroll', handleScroll, { passive: true })
     return () => feed.removeEventListener('scroll', handleScroll)
-  }, [])
+  }, [activeIndex])
 
+  // Keyboard navigation
   useEffect(() => {
     const handleKey = (e) => {
       const feed = feedRef.current
@@ -69,15 +89,33 @@ export default function VideoFeed({ darkMode }) {
   const toggleMute = useCallback(() => setIsMuted(m => !m), [])
 
   return (
-    <div ref={feedRef} className={`feed-container ${darkMode ? 'dark' : ''}`}>
+    <div
+      ref={feedRef}
+      style={{
+        position: 'fixed',
+        top: 0, left: 0,
+        width: '100vw',
+        height: '100vh',
+        overflowY: 'scroll',
+        overflowX: 'hidden',
+        scrollSnapType: 'y mandatory',
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
+        background: '#000',
+      }}
+    >
       {extendedVideos.map((video, extIdx) => (
         <div
           key={`${video.id}-${extIdx}`}
           style={{
-            height: '100dvh',
+            width: '100vw',
+            height: '100vh',
             scrollSnapAlign: 'start',
             scrollSnapStop: 'always',
             flexShrink: 0,
+            position: 'relative',
+            overflow: 'hidden',
+            background: '#000',
           }}
         >
           <VideoCard

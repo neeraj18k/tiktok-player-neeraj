@@ -3,8 +3,13 @@ import { useVideoPlayer } from '../hooks/useVideoPlayer'
 
 export default function VideoPlayer({ video, isActive, isMuted }) {
   const {
-    videoRef, isPlaying, progress, isLoaded,
-    showIcon, togglePlay, seekTo,
+    videoRef,
+    isPlaying,
+    progress,
+    isLoaded,
+    showIcon,
+    togglePlay,
+    seekTo,
   } = useVideoPlayer({ isActive })
 
   const [doubleTapHeart, setDoubleTapHeart] = useState(false)
@@ -54,54 +59,139 @@ export default function VideoPlayer({ video, isActive, isMuted }) {
   }, [seekTo])
 
   return (
-    <div className="relative w-full h-full bg-black">
-      {!isLoaded && <div className="absolute inset-0 skeleton z-10" />}
+    <div style={{
+      position: 'relative',
+      width: '100%',
+      height: '100%',
+      background: '#000',
+    }}>
 
+      {/* ✅ Skeleton loader */}
+      {!isLoaded && (
+        <div className="skeleton" style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 10,
+        }} />
+      )}
+
+      {/* ✅ Native video — preload auto for faster load */}
       <video
         ref={videoRef}
         src={video.url}
-        className="absolute inset-0 w-full h-full object-cover"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+        }}
         loop
         muted={isMuted}
         playsInline
-        preload="metadata"
+        preload="auto"
         onClick={handleTap}
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
         onPointerLeave={handlePointerUp}
       />
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-black/20 pointer-events-none" />
+      {/* Gradient overlay */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.0) 40%, rgba(0,0,0,0.2) 100%)',
+        pointerEvents: 'none',
+        zIndex: 5,
+      }} />
 
+      {/* Play/Pause icon */}
       {showIcon && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
-          <div className="w-16 h-16 rounded-full glass flex items-center justify-center animate-heart-burst">
-            <span className="text-3xl">{isPlaying ? '▶️' : '⏸️'}</span>
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          pointerEvents: 'none',
+          zIndex: 30,
+        }}>
+          <div className="animate-heart-burst" style={{
+            width: '64px', height: '64px',
+            borderRadius: '50%',
+            background: 'rgba(255,255,255,0.15)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '28px',
+          }}>
+            {isPlaying ? '▶️' : '⏸️'}
           </div>
         </div>
       )}
 
+      {/* Double tap heart */}
       {doubleTapHeart && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
-          <span className="text-7xl animate-heart-burst select-none">❤️</span>
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          pointerEvents: 'none',
+          zIndex: 30,
+        }}>
+          <span className="animate-heart-burst"
+            style={{ fontSize: '80px', userSelect: 'none' }}>
+            ❤️
+          </span>
         </div>
       )}
 
+      {/* Long press indicator */}
       {longPressing && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 glass px-3 py-1 rounded-full z-30 pointer-events-none">
-          <span className="text-white text-xs font-medium">Paused</span>
+        <div style={{
+          position: 'absolute',
+          top: '70px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(255,255,255,0.2)',
+          borderRadius: '20px',
+          padding: '4px 14px',
+          zIndex: 30,
+          pointerEvents: 'none',
+        }}>
+          <span style={{ color: '#fff', fontSize: '12px' }}>Paused</span>
         </div>
       )}
 
+      {/* ✅ Progress bar — above bottom nav, always visible */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 cursor-pointer z-20 group"
         onClick={handleProgressClick}
+        style={{
+          position: 'absolute',
+          bottom: '58px',      // ✅ nav height ke upar
+          left: 0,
+          right: 0,
+          height: '3px',
+          background: 'rgba(255,255,255,0.25)',
+          cursor: 'pointer',
+          zIndex: 999,
+        }}
       >
-        <div
-          className="progress-bar h-full bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 rounded-full"
-          style={{ width: `${progress}%` }}
-        />
+        <div style={{
+          height: '100%',
+          width: `${progress}%`,
+          background: 'linear-gradient(to right, #ec4899, #f43f5e)',
+          borderRadius: '2px',
+          transition: 'width 0.1s linear',
+          minWidth: progress > 0 ? '4px' : '0',
+        }} />
       </div>
+
     </div>
   )
 }
